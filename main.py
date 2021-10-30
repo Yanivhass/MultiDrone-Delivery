@@ -59,6 +59,75 @@ SIM_TIME = 100
 INITIAL_X = 0
 INITIAL_Y = -100
 
+
+#------------
+#---PID GAINS---
+#ku = 0.39
+#kp = 0.234
+#Tu = 30 ms
+
+
+#KP = 1.2
+#KI = 0.0
+#KD = 0.0
+
+
+
+antiWindup = True
+
+KI_yaw = 15.6
+KD_yaw = 0.0008775
+KP_yaw = 0.39
+#---------------
+
+
+
+#KI_yaw = 8.338983050847457
+#KD_yaw = 0.0018142499999999999
+#KP_yaw = 0.41
+
+
+KP_updown = 1.1
+KI_updown = 17.83783783783784
+KD_updown = 0.006105
+
+
+
+KP_face = 1.2
+KI_face = 21.492537313432834
+KD_face = 0.00603
+
+
+
+class PID(object):
+    def __init__(self, KP, KI, KD):
+        self.kp = KP
+        self.ki = KI
+        self.kd = KD
+        self.error = 0
+        self.integral_error = 0
+        self.error_last = 0
+        self.derivative_error = 0
+        self.output = 0
+
+    def compute(self, pos,target):
+        self.error = target - pos
+        # self.integral_error += self.error * TIME_STEP
+        self.derivative_error = (self.error - self.error_last) / TIME_STEP
+        self.error_last = self.error
+        self.output = self.kp * self.error + self.ki * self.integral_error + self.kd * self.derivative_error
+        return self.output
+
+    def get_kpe(self):
+        return self.kp * self.error
+
+    def get_kde(self):
+        return self.kd * self.derivative_error
+
+    def get_kie(self):
+        return self.ki * self.integral_error
+
+
 def predict(img,
             conf_thres=0.25,  # confidence threshold
             iou_thres=0.45,  # NMS IOU threshold
@@ -169,7 +238,7 @@ def findObjects(outputs, img):
 S = 30
 found_first = False
 
-'''
+
 class FrontEnd(object):
 
     def __init__(self):
@@ -219,9 +288,9 @@ class FrontEnd(object):
         time.sleep(1)
         self.tello.move_up(100)
         star = time.time()
-        # yaw_pid = PID(KP_yaw,KI_yaw,KD_yaw)
-        # updown_pid = PID(KP_updown,KI_updown,KD_updown)
-        # face_pid = PID(KP_face,KI_face,KD_face)
+        yaw_pid = PID(KP_yaw,KI_yaw,KD_yaw)
+        updown_pid = PID(KP_updown,KI_updown,KD_updown)
+        face_pid = PID(KP_face,KI_face,KD_face)
         ts = 0
 
         while True:
@@ -330,7 +399,7 @@ class FrontEnd(object):
             self.tello.send_rc_control(self.left_right_velocity, self.for_back_velocity, self.up_down_velocity,
                                        self.yaw_velocity)
 
-'''
+
 if __name__ == "__main__":
 
     device = select_device("cpu")
