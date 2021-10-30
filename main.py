@@ -465,8 +465,8 @@ if __name__ == "__main__":
 
         angle_to_target = 90 - np.arcsin((y2-Path[curr_leg][1])/(x2-Path[curr_leg][2]))
         delta = theta1 - angle_to_target
-        if abs(delta) > 5:
-            if
+        # if abs(delta) > 5:
+        #     if
 
         ## Adjust drones distance ##
 
