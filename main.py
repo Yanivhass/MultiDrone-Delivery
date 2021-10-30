@@ -409,17 +409,27 @@ if __name__ == "__main__":
     model = attempt_load(weights, map_location=device)
     names = model.module.names if hasattr(model, 'module') else model.names
 
+    Path = [{1,2},{2,2},{5,2}]; # list of pair of (x,y) coordinates
+
+
+    x1,y1,theta1 = 0,0,0
+    x2,y2,theta2 = 0,0,0
+    curr_leg = 0
+
     swarm = TelloSwarm.fromIps([
     #      # "192.168.144.88",
     #     "192.168.50.151"
     ])
 
     swarm.connect()
+
+
+
     # swarm.streamon()
     for tello in swarm:
         print(tello.get_battery())
         # tello.takeoff()
-        # tello.land()
+        # tello.rotate_clockwise(90) #rotate to face north
         tello.streamon()
         frame_read = tello.get_frame_read() #720x960x3
         # cv2.imwrite("picture.png", frame_read.frame)
@@ -443,8 +453,22 @@ if __name__ == "__main__":
     # frontend.run()
     # opt = parse_opt()
     # main(opt)
+    path_done = False;
+    while not path_done:
 
-    while True:
+        ## Update current location according to "GPS" camera
+
+        # x1,y1,theta1 =
+        # x2,y2,theta2 =
+
+        ## Update heading towards target
+
+        angle_to_target = 90 - np.arcsin((y2-Path[curr_leg][1])/(x2-Path[curr_leg][2]))
+        delta = theta1 - angle_to_target
+        if abs(delta) > 5:
+            if
+
+        ## Adjust drones distance ##
 
         # img = swarm[0].get_frame_read().frame  # 720x960x3
         bounding_box = detect.run(weights='weights.pt', source='picture2.png', nosave=False)
