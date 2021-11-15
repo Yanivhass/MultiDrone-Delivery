@@ -23,6 +23,7 @@ from utils.general import check_img_size, check_requirements, check_imshow, colo
     apply_classifier, scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box
 from utils.plots import colors, plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
+import path
 
 colorama.init()
 
@@ -399,6 +400,7 @@ class FrontEnd(object):
             self.tello.send_rc_control(self.left_right_velocity, self.for_back_velocity, self.up_down_velocity,
                                        self.yaw_velocity)
 
+    def get_correction
 
 if __name__ == "__main__":
 
@@ -409,10 +411,10 @@ if __name__ == "__main__":
     model = attempt_load(weights, map_location=device)
     names = model.module.names if hasattr(model, 'module') else model.names
 
-    Path = [{1,2},{2,2},{5,2}]; # list of pair of (x,y) coordinates
+    Path = [{1,2},{2,2},{5,2}] # list of pair of (x,y) coordinates
 
 
-    x1,y1,theta1 = 0,0,0
+    x1,y1,theta1 = 0,0,
     x2,y2,theta2 = 0,0,0
     curr_leg = 0
 
@@ -422,10 +424,6 @@ if __name__ == "__main__":
     ])
 
     swarm.connect()
-
-
-
-    # swarm.streamon()
     for tello in swarm:
         print(tello.get_battery())
         # tello.takeoff()
