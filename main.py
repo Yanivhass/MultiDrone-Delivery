@@ -414,7 +414,7 @@ if __name__ == "__main__":
     Path = [{1,2},{2,2},{5,2}] # list of pair of (x,y) coordinates
 
 
-    x1,y1,theta1 = 0,0,
+    x1,y1,theta1 = 0,0,0
     x2,y2,theta2 = 0,0,0
     curr_leg = 0
 
@@ -495,7 +495,9 @@ if __name__ == "__main__":
                 for *xyxy, conf, cls in reversed(det):
                     print(*xyxy)
 
+        # should be done in different thread
 
+        err_drone1, ang_drone2 =   path.controllers(position, angle, x1, y1, x2, y2)
 
 
 

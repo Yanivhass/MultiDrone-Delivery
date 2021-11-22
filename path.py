@@ -45,6 +45,10 @@ class path_finder():
     def battery(self, data):
         self.battery_val = data.percent
 
+    '''
+    Finds drone direction and location in an image
+    
+    '''
     def shape_detect(self, img):
         center, angle = (0, 0), 0
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -170,6 +174,20 @@ class path_finder():
 
         return center, angle, (x1, y1), (x2, y2)
 
+    ''' Yaniv's notes:
+    Returns PID controller output for given variables
+    Input:
+    :param float list position - (x,y) values of drone location
+    :param float angle - drone's azimuth. [0-360).
+    :param float x1 - x value for current line start
+    :param float y1 - y value for current line start
+    :param float x2 - x value for current line end
+    :param float y2 - y value for current line end
+    
+    note for future use:
+    if using A* paths with no straight lines, we could use
+    path[i-1],path[i+1] as approximation
+    '''
     def controllers(self, position, angle, x1, y1, x2, y2):
         # print('org angle: ', angle)
         current_ang = angle
@@ -379,9 +397,14 @@ class path_finder():
         is_cross = in_x_range and in_y_range
         return current_err, is_cross
 
+    # Yaniv's notes: I have no idea what function they are talking about
     # The following function gets two points (p1-x_y position of nearst node,p2-x_y position of random node) and
     # reutrns x_y position of a point with epsilon distance from p1 and equal azimuth to the azimuth between p1 and p2
 
+    ''' Yaniv's notes:
+    line equation is defined as y = line_a*x + line_b
+    for given x_location, y_location returns if drone is above or below the line
+    '''
     def right_or_left(self, line_x, line_a, line_b, x_location, y_location):
         right = 0
         left = 0
