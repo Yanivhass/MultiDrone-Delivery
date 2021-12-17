@@ -8,7 +8,7 @@ import sys, os, random, pygame
 from math import sqrt, cos, sin, atan2
 # import matplotlib.image as mpimg
 from dijkstar import Graph, find_path
-
+'''
 class path_finder():
 
     def __init__(self):
@@ -45,11 +45,14 @@ class path_finder():
     def battery(self, data):
         self.battery_val = data.percent
 
+
+'''
+
     '''
     Finds drone direction and location in an image
     
     '''
-    def shape_detect(self, img):
+    def shape_detect(img):
         center, angle = (0, 0), 0
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # blurred = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -86,10 +89,10 @@ class path_finder():
                 #     cv2.drawContours(img, [approx], 0, (0, 255, 0), 3)
                 #     cv2.putText(img, "Circle", (x, y), font, 1, (255))
         if triangle_center != (0, 0) and pentagon_center != (0, 0):
-            if triangle_center[1] > pentagon_center[1]:
-                self.up_or_down = 0  # down
-            else:
-                self.up_or_down = 1  # up
+            # if triangle_center[1] > pentagon_center[1]:
+            #     self.up_or_down = 0  # down
+            # else:
+            #     self.up_or_down = 1  # up
             # print(triangle_center, pentagon_center)
             if triangle_center[0] == pentagon_center[0]:
                 if triangle_center[1] > pentagon_center[1]:
@@ -123,7 +126,7 @@ class path_finder():
             cv2.putText(img, 'ang: ' + str(round(angle)), (20, 30), font, 0.8, (0, 0, 255))
 
         return center, angle
-
+'''
     def live_drone(self, img):
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
         img = cv2.flip(img, 1)
@@ -173,7 +176,7 @@ class path_finder():
         cv2.waitKey(1)
 
         return center, angle, (x1, y1), (x2, y2)
-
+'''
     ''' Yaniv's notes:
     Returns PID controller output for given variables
     Input:

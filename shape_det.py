@@ -83,7 +83,7 @@ def shape_detect(img):
             line_y = int((triangle_center[1] + pentagon_center[1]) / 2)
             center = (line_x, line_y)
             cv2.circle(img, center, 4, (0, 0, 255), -1)
-            cv2.putText(img, 'ang: ' + str(round(angle)), (20, 30), font, 0.8, (0, 0, 255))
+            cv2.putText(img, 'ang: ' + str(round(angle)), (20, 30), 'font', 0.8, (0, 0, 255))
 
         return center, angle
 

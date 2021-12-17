@@ -15,18 +15,18 @@ import colorama
 from colorama import Fore
 from colorama import Style
 import argparse
-
 import detect
+from drone import *
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
 from utils.general import check_img_size, check_requirements, check_imshow, colorstr, non_max_suppression, \
     apply_classifier, scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box
 from utils.plots import colors, plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
-import path
+from shape_det import image_broadcast
+
 
 colorama.init()
-
 
 
 
@@ -258,7 +258,7 @@ class FrontEnd(object):
         self.faceFound = False
         self.send_rc_control = True
 
-
+'''
     def run(self):
         global found_first
         poses = np.array([])
@@ -300,7 +300,7 @@ class FrontEnd(object):
             # pygame.event.pump()
             # frame = frame_read.frame
             # blob = cv.dnn.blobFromImage(frame, 1 / 255, (whT, whT), [0, 0, 0], 1, crop=False)
-            # net.setInput(blob)
+            net.setInput(blob)
             layersNames = net.getLayerNames()
             outputNames = [(layersNames[i[0] - 1]) for i in net.getUnconnectedOutLayers()]
             outputs = net.forward(outputNames)
@@ -392,18 +392,17 @@ class FrontEnd(object):
         frame_read.cap.release()
         cv2.destroyAllWindows()
         return 0
+'''
 
+    # def update(self):
+    #     """ Update routine. Send velocities to Tello."""
+    #     if self.send_rc_control:
+    #         self.tello.send_rc_control(self.left_right_velocity, self.for_back_velocity, self.up_down_velocity,
+    #                                    self.yaw_velocity)
 
-    def update(self):
-        """ Update routine. Send velocities to Tello."""
-        if self.send_rc_control:
-            self.tello.send_rc_control(self.left_right_velocity, self.for_back_velocity, self.up_down_velocity,
-                                       self.yaw_velocity)
-
-    def get_correction
 
 if __name__ == "__main__":
-
+    image_broadcast()
     device = select_device("cpu")
     weights = 'weights.pt'
     imgsz = 640
@@ -413,9 +412,10 @@ if __name__ == "__main__":
 
     Path = [{1,2},{2,2},{5,2}] # list of pair of (x,y) coordinates
 
-
-    x1,y1,theta1 = 0,0,0
-    x2,y2,theta2 = 0,0,0
+    drone1 = Drone()
+    drone2 = Drone()
+    # x1,y1,theta1 = 0,0,0
+    # x2,y2,theta2 = 0,0,0
     curr_leg = 0
 
     swarm = TelloSwarm.fromIps([
@@ -451,15 +451,15 @@ if __name__ == "__main__":
     # frontend.run()
     # opt = parse_opt()
     # main(opt)
-    path_done = False;
+    path_done = False
     while not path_done:
 
         ## Update current location according to "GPS" camera
 
-        # x1,y1,theta1 =
-        # x2,y2,theta2 =
+        # drone1.x = ...
 
         ## Update heading towards target
+
 
         angle_to_target = 90 - np.arcsin((y2-Path[curr_leg][1])/(x2-Path[curr_leg][2]))
         delta = theta1 - angle_to_target
@@ -497,7 +497,7 @@ if __name__ == "__main__":
 
         # should be done in different thread
 
-        err_drone1, ang_drone2 =   path.controllers(position, angle, x1, y1, x2, y2)
+        # err_drone1, ang_drone2 =   path.controllers(position, angle, x1, y1, x2, y2)
 
 
 
