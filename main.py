@@ -24,11 +24,11 @@ from utils.general import check_img_size, check_requirements, check_imshow, colo
 from utils.plots import colors, plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 from shape_det import image_broadcast
-
+from queue import Queue
 
 colorama.init()
 
-
+Path = []
 
 #cap = cv.VideoCapture(0)
 whT = 320
@@ -400,8 +400,23 @@ class FrontEnd(object):
     #         self.tello.send_rc_control(self.left_right_velocity, self.for_back_velocity, self.up_down_velocity,
     #                                    self.yaw_velocity)
 
+path_queue = Queue(0)
+# function to display the coordinates of
+# of the points clicked on the image
+def click_event(event, x, y, flags, params):
+    # checking for left mouse clicks
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # displaying the coordinates
+        # on the Shell
+        print(x, ' ', y)
+        path_queue.put([x, y])
+
 
 if __name__ == "__main__":
+
+    while (True):
+        detect.run(weights='weights.pt', source='0')
+
     image_broadcast()
     device = select_device("cpu")
     weights = 'weights.pt'
@@ -410,26 +425,26 @@ if __name__ == "__main__":
     model = attempt_load(weights, map_location=device)
     names = model.module.names if hasattr(model, 'module') else model.names
 
-    Path = [{1,2},{2,2},{5,2}] # list of pair of (x,y) coordinates
+    # Path = [{1,2},{2,2},{5,2}] # list of pair of (x,y) coordinates
 
-    drone1 = Drone()
-    drone2 = Drone()
+    # drone1 = Drone()
+    # drone2 = Drone()
     # x1,y1,theta1 = 0,0,0
     # x2,y2,theta2 = 0,0,0
     curr_leg = 0
-
-    swarm = TelloSwarm.fromIps([
-    #      # "192.168.144.88",
+    #
+    # swarm = TelloSwarm.fromIps([
+    # #      # "192.168.144.88",
     #     "192.168.50.151"
-    ])
-
-    swarm.connect()
-    for tello in swarm:
-        print(tello.get_battery())
-        # tello.takeoff()
-        # tello.rotate_clockwise(90) #rotate to face north
-        tello.streamon()
-        frame_read = tello.get_frame_read() #720x960x3
+    # ])
+    #
+    # swarm.connect()
+    # for tello in swarm:
+    #     print(tello.get_battery())
+    #     # tello.takeoff()
+    #     # tello.rotate_clockwise(90) #rotate to face north
+    #     tello.streamon()
+    #     frame_read = tello.get_frame_read() #720x960x3
         # cv2.imwrite("picture.png", frame_read.frame)
         # i = i + 1
     # frame_read = swarm.get_frame_read()
@@ -452,7 +467,16 @@ if __name__ == "__main__":
     # opt = parse_opt()
     # main(opt)
     path_done = False
+    path_in_progress = False
     while not path_done:
+
+        if path_in_progress:
+
+        else:
+            if path_queue.empty():
+                path_done = True
+            else:
+                next_waypoint = path_queue.get()
 
         ## Update current location according to "GPS" camera
 
@@ -461,39 +485,39 @@ if __name__ == "__main__":
         ## Update heading towards target
 
 
-        angle_to_target = 90 - np.arcsin((y2-Path[curr_leg][1])/(x2-Path[curr_leg][2]))
-        delta = theta1 - angle_to_target
+        # angle_to_target = 90 - np.arcsin((y2-Path[curr_leg][1])/(x2-Path[curr_leg][2]))
+        # delta = theta1 - angle_to_target
         # if abs(delta) > 5:
         #     if
 
         ## Adjust drones distance ##
 
         # img = swarm[0].get_frame_read().frame  # 720x960x3
-        bounding_box = detect.run(weights='weights.pt', source='picture2.png', nosave=False)
-        img0 = cv2.imread("picture2.png")
-        img = cv2.rotate(img0, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
-        img = cv2.resize(img, (480,640), interpolation = cv2.INTER_AREA)
-        print('Resized Dimensions : ', img.shape)
-        img = torch.from_numpy(img).to(device).float()
-        img /= 255.0
-        img = img.permute(2,1,0).unsqueeze(0)
-        # img = img.reshape((3, imgsz,imgsz)).unsqueeze(0)
-        # image dims should be (1,3,480,640)
-
-        t1 = time_synchronized()
-        pred = model(img)[0]
-        pred = non_max_suppression(pred)
-        t2 = time_synchronized()
-
-
-
-        for i, det in enumerate(pred):
-            # p, s, im0, frame = path, '', im0s.copy(), getattr(dataset, 'frame', 0)
-            if len(det):
-                # Rescale boxes from img_size to im0 size
-                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], img.shape).round()
-                for *xyxy, conf, cls in reversed(det):
-                    print(*xyxy)
+        # bounding_box = detect.run(weights='weights.pt', source='picture12.png', nosave=False)
+        # img0 = cv2.imread("picture2.png")
+        # img = cv2.rotate(img0, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
+        # img = cv2.resize(img, (480,640), interpolation = cv2.INTER_AREA)
+        # print('Resized Dimensions : ', img.shape)
+        # img = torch.from_numpy(img).to(device).float()
+        # img /= 255.0
+        # img = img.permute(2,1,0).unsqueeze(0)
+        # # img = img.reshape((3, imgsz,imgsz)).unsqueeze(0)
+        # # image dims should be (1,3,480,640)
+        #
+        # t1 = time_synchronized()
+        # pred = model(img)[0]
+        # pred = non_max_suppression(pred)
+        # t2 = time_synchronized()
+        #
+        #
+        #
+        # for i, det in enumerate(pred):
+        #     # p, s, im0, frame = path, '', im0s.copy(), getattr(dataset, 'frame', 0)
+        #     if len(det):
+        #         # Rescale boxes from img_size to im0 size
+        #         det[:, :4] = scale_coords(img.shape[2:], det[:, :4], img.shape).round()
+        #         for *xyxy, conf, cls in reversed(det):
+        #             print(*xyxy)
 
         # should be done in different thread
 
