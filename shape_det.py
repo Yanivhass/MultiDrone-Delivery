@@ -110,7 +110,8 @@ def image_broadcast():
        
         # Create a VideoCapture object and read from input file
         # If the input is the camera, pass 0 instead of the video file name
-        cap = cv2.VideoCapture(1,cv2.CAP_DSHOW)
+
+        cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         
 
         # Check if camera openeindex = 1 + cv::CAP_MSMF successfully +cv2.CAP_MSMF
@@ -126,7 +127,7 @@ def image_broadcast():
 
                 # Display the resulting frame
                 cv2.imshow('Frame',frame)
-                shape_detect(frame)
+                # shape_detect(frame)
                 # Press Q on keyboard to  exit
                 if cv2.waitKey(25) & 0xFF == ord('q'):
                     break
@@ -141,4 +142,4 @@ def image_broadcast():
         # Closes all the frames
         cv2.destroyAllWindows()
 
-image_broadcast()
+# image_broadcast()

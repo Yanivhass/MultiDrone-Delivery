@@ -5,11 +5,10 @@ import numpy as np
 class Point:
     x: float = 0
     y: float = 0
-    z: float = 0
 
 
 def turn_to_next_point(curr_point: Point, next_point: Point, standoff_dist: float = 1) -> Point:
-    # called when drone 1 reached last point
+    # called when drone 1 reached end of straight line segment
     # make sure all tello speeds are 0
     # calculate new x,y for moving standoff_dist in direction of next_point
     # in parallel:
@@ -23,10 +22,11 @@ def turn_to_next_point(curr_point: Point, next_point: Point, standoff_dist: floa
 
 
 class Drone:
-    def __init__(self, location: Point, heading=0, standoff_dist = 1):
+    def __init__(self, location: Point, heading=0, standoff_dist=1):
         self.location = location
         self.heading = heading
         self.standoff_dist = standoff_dist
+        self.v = Point()
 
     def turn(self, next_point: Point):
         self.location = turn_to_next_point(self.location, next_point, self.standoff_dist)

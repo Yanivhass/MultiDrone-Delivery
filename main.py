@@ -16,6 +16,7 @@ from colorama import Fore
 from colorama import Style
 import argparse
 import detect
+import drone
 from drone import *
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
@@ -401,6 +402,10 @@ class FrontEnd(object):
     #                                    self.yaw_velocity)
 
 path_queue = Queue(0)
+min_speed = 10  # cm/s, [10-100]
+standoff_dist = 100  # cm, [20-500]
+dist_tolerance = 20  # pixels, tolerance for distance
+deg_tolerance = 5  # degrees, tolerance for degrees
 # function to display the coordinates of
 # of the points clicked on the image
 def click_event(event, x, y, flags, params):
@@ -408,9 +413,25 @@ def click_event(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDOWN:
         # displaying the coordinates
         # on the Shell
-        print(x, ' ', y)
-        path_queue.put([x, y])
+        print('New Waypoint: ',x, ' ', y)
+        point = Point()
+        point.x = x
+        point.y = y
+        path_queue.put(point)
 
+def turn(swarm,drones: drone, next_point ):
+    #get new heading
+    theta = np.arctan((next_point.x - curr_point.x) / (next_point.y - curr_point.y))  # turn angle
+    #turn drone 1
+    #parallel - move drones forward
+
+
+def dist_line_point(line_p1: Point, line_p2: Point, p: Point):
+    p1 = np.array([line_p1.x, line_p1.y, 0])
+    p2 = np.array([line_p2.x, line_p2.y, 0])
+    p3 = np.array([p.x, p.y, 0])
+    d = np.linalg.norm(np.cross(p2 - p1, p1 - p3)) / np.linalg.norm(p2 - p1)
+    return d
 
 if __name__ == "__main__":
 
@@ -427,10 +448,13 @@ if __name__ == "__main__":
 
     # Path = [{1,2},{2,2},{5,2}] # list of pair of (x,y) coordinates
 
-    # drone1 = Drone()
-    # drone2 = Drone()
-    # x1,y1,theta1 = 0,0,0
-    # x2,y2,theta2 = 0,0,0
+    locations = get_drones_location()
+    drone0 = Drone(locations[0])
+    drone1 = Drone(locations[1])
+    drones = [drone0, drone1]
+
+    last_waypoint = locations[1]
+    next_waypoint = last_waypoint
     curr_leg = 0
     #
     # swarm = TelloSwarm.fromIps([
@@ -466,18 +490,75 @@ if __name__ == "__main__":
     # frontend.run()
     # opt = parse_opt()
     # main(opt)
+    leader = 0
+    follower = 1
     path_done = False
     path_in_progress = False
+    heading = 0
     while not path_done:
 
         if path_in_progress:
+            # update heading
+            for i in range(len(drones)):
+                degrees = swarm[i].get_yaw() - drones[i].heading
+                if np.abs(degrees) > deg_tolerance:
+                    swarm[i].rotate_clockwise(degrees)
+
+            # update location
+            # check if leader is off-course
+            get_drones_location(Drones)  # TODO: implement get_drones_location()
+            distance = dist_line_point(last_waypoint, next_waypoint, drones[leader].location)
+            if distance > dist_tolerance:
+                swarm[leader].move_left(distance)
+            if distance < -dist_tolerance:
+                swarm[leader].move_right(distance)
+            # check if follower is off-course
+            offset = get_drones_relative(Drones)  # TODO: implement get_drones_relative()
+
+            # check distance to new waypoint
+            dist_to_waypoint = np.sqrt(drones[leader].location - next_waypoint)
+            if dist_to_waypoint < standoff_dist:
+                swarm.move_forward(30)
+                for i in range(len(drones)):
+                    drones[i].v = Point()
+                path_in_progress = False
 
         else:
             if path_queue.empty():
                 path_done = True
             else:
+                last_waypoint = next_waypoint
                 next_waypoint = path_queue.get()
+                curr_point = drones[leader].location
+                theta = np.arctan((next_waypoint.x - curr_point.x) / (next_waypoint.y - curr_point.y))  # turn angle
+                if 90 < theta < 270:
+                    swarm.rotate_clockwise(180)
+                    for i in range(len(drones)):
+                        drones[i].heading =(drones[i].heading - 180) % 360
+                    leader = follower
+                    follower = (leader+1) % 2
+                    swarm.sync()
+                    curr_point = drones[leader].location
+                    theta = np.arctan((next_waypoint.x - curr_point.x) / (next_waypoint.y - curr_point.y))  # turn angle
 
+                    drones[leader].heading = drones[leader].heading + theta
+                if 270 < theta:
+                    theta = theta - 360
+
+                swarm[leader].rotate_clockwise(theta)
+                drones[leader].heading = drones[leader].heading + theta
+                swarm.sync()
+                swarm.move_forward(standoff_dist)
+                for i in range(len(drones)):
+                    new_point = drones[i].location
+                    new_point.x = curr_point.x + np.cos(drones[i].heading) * standoff_dist
+                    new_point.y = curr_point.y + np.sin(drones[i].heading) * standoff_dist
+                    drones[i].location = new_point
+                swarm.sync()
+                swarm[follower].rotate_clockwise(theta)
+                drones[follower].heading = drones[follower].heading + theta
+                swarm.sync()
+                swarm.set_speed(min_speed)
         ## Update current location according to "GPS" camera
 
         # drone1.x = ...

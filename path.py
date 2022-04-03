@@ -400,10 +400,10 @@ class path_finder():
         is_cross = in_x_range and in_y_range
         return current_err, is_cross
 
-    # Yaniv's notes: I have no idea what function they are talking about
+
     # The following function gets two points (p1-x_y position of nearst node,p2-x_y position of random node) and
     # reutrns x_y position of a point with epsilon distance from p1 and equal azimuth to the azimuth between p1 and p2
-
+    # Yaniv's notes: I have no idea what function they are talking about
     ''' Yaniv's notes:
     line equation is defined as y = line_a*x + line_b
     for given x_location, y_location returns if drone is above or below the line

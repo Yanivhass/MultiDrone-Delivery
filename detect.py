@@ -132,7 +132,7 @@ def run(weights='weights.pt',  # model.pt path(s)
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
-                    return xyxy
+                    # return xyxy
                     if save_txt:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
 
@@ -153,7 +153,7 @@ def run(weights='weights.pt',  # model.pt path(s)
             # Stream results
             if view_img:
                 cv2.imshow(str(p), im0)
-                cv2.waitKey()  # 1 millisecond
+                # cv2.waitKey()  # 1 millisecond
 
             # Save results (image with detections)
             if save_img:
