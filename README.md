@@ -1,6 +1,6 @@
 # MultiDrone-Delivery
 
-The aim of this project is to plan and execute a coordinates delivery of a single item by multiple drones. 
+The aim of this project is to plan and execute a coordinated delivery of a single item by multiple drones. 
 To accomplish this task we combined algorithms from the fields of Computer Vision, Planning and Control.
 
 Drone experiment
